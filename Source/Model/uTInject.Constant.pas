@@ -34,7 +34,7 @@ Uses Winapi.Messages, System.SysUtils, typinfo, REST.Json, StrUtils, EncdDecd;
 Const
   //Uso GLOBAL
                                   //Version updates I=HIGH, II=MEDIUM, III=LOW, IV=VERY LOW
-  TInjectVersion                  = '4.0.2.0'; //  01/11/2023  //Alterado por Mike Lustosa
+  TInjectVersion                  = '4.0.5.0'; //  23/11/2025  //Alterado por Mike Lustosa
   CardContact                     = '@c.us';
   CardGroup                       = '@g.us';
   CardList                        = '@broadcast';
@@ -74,6 +74,7 @@ Const
   FrmConsole_JS_IsLoggedIn              = 'WAPI.isLoggedIn();';
   FrmConsole_JS_VAR_StartMonitor        = 'startMonitor(intervalSeconds=<#TEMPO#>)';
   FrmConsole_JS_VAR_ReadMessages        = 'window.WAPI.sendSeen("<#MSG_PHONE#>")';
+  FrmConsole_JS_VAR_MarkUnRead          = 'window.WAPI.markUnRead("<#MSG_PHONE#>")';
   FrmConsole_JS_VAR_DeleteMessages      = 'window.WAPI.deleteConversation("<#MSG_PHONE#>")';
   FrmConsole_JS_VAR_SendBase64          = 'window.WAPI.sendImage("<#MSG_BASE64#>","<#MSG_PHONE#>", "<#MSG_NOMEARQUIVO#>", "<#MSG_CORPO#>")';
   FrmConsole_JS_VAR_SendSurvey          = 'window.WAPI.sendPool("<#MSG_GROUPID#>","<#MSG_TITLE#>", <#MSG_SURVEY#>)';

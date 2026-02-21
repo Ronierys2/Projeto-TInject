@@ -59,7 +59,6 @@ type
     LabeledEdit2: TLabeledEdit;
     LabeledEdit1: TLabeledEdit;
     chk_apagarMsg: TCheckBox;
-    btStatusBat: TButton;
     Rdb_FormaConexao: TRadioGroup;
     SpeedButton1: TSpeedButton;
     Image1: TImage;
@@ -139,6 +138,8 @@ type
     btnSendPool: TButton;
     btSendButtonList: TButton;
     btnConsoleClear: TButton;
+    btMarkUnRead: TButton;
+    chk_ativaLeitura: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btSendTextClick(Sender: TObject);
@@ -176,7 +177,6 @@ type
     procedure TInject1GetCheckIsValidNumber(Sender: TObject; Number: string;      IsValid: Boolean);
     procedure btIsConnectedClick(Sender: TObject);
     procedure TInject1IsConnected(Sender: TObject; Connected: Boolean);
-    procedure TInject1GetBatteryLevel(Sender: TObject);
     procedure btSendLinkWithPreviewClick(Sender: TObject);
     procedure btSendLocationClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -217,6 +217,9 @@ type
     procedure TInject1GetIncomingCall(const incomingCall: TReturnIncomingCall);
     procedure btSendButtonListClick(Sender: TObject);
     procedure btnConsoleClearClick(Sender: TObject);
+    procedure TInject1GetUnReadMessagesFromMe(const Chats: TChatList);
+    procedure btMarkUnReadClick(Sender: TObject);
+    procedure chk_ativaLeituraClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -225,6 +228,7 @@ type
     FNameContact:  string;
     FChatID: string;
     Procedure ExecuteFilter;
+    procedure DownloadAndRenameFile(imageURL: string);
 
   public
     { Public declarations }
@@ -354,7 +358,6 @@ begin
   if not TInject1.Auth then
      Exit;
 
-  //TInject1.CheckIsValidNumber(ed_num.Text); deprecated
   TInject1.NewCheckIsValidNumber(ed_num.Text);
 end;
 
@@ -464,52 +467,18 @@ begin
 end;
 
 
-{procedure TfrmPrincipal.btNewCheckNumberClick(Sender: TObject);
+procedure TfrmPrincipal.btMarkUnReadClick(Sender: TObject);
 begin
-
-
-
-end;
-
-
-
- Funcao nao utilizada
-function DownloadArquivo(const Origem, Destino: String): Boolean;
-const BufferSize = 1024;
-var
-  hSession, hURL: HInternet;
-  Buffer: array[1..BufferSize] of Byte;
-  BufferLen: DWORD;
-  f: File;
-  sAppName: string;
-begin
- Result   := False;
- sAppName := ExtractFileName(Application.ExeName);
- hSession := InternetOpen(PChar(sAppName),
-                INTERNET_OPEN_TYPE_PRECONFIG,
-               nil, nil, 0);
- try
-  hURL := InternetOpenURL(hSession,
-            PChar(Origem),
-            nil,0,0,0);
   try
-   AssignFile(f, Destino);
-   Rewrite(f,1);
-   repeat
-    InternetReadFile(hURL, @Buffer,
-                     SizeOf(Buffer), BufferLen);
-    BlockWrite(f, Buffer, BufferLen)
-   until BufferLen = 0;
-   CloseFile(f);
-   Result:=True;
-  finally
-   InternetCloseHandle(hURL)
-  end
- finally
-  InternetCloseHandle(hSession)
- end
-end;}
+    if not TInject1.Auth then
+       Exit;
 
+    TInject1.markUnRead(ed_num.Text);
+  finally
+    ed_num.SelectAll;
+    ed_num.SetFocus;
+  end;
+end;
 
 procedure TfrmPrincipal.Button10Click(Sender: TObject);
 begin
@@ -537,7 +506,6 @@ end;
 
 procedure TfrmPrincipal.btGetSeveralStatusClick(Sender: TObject);
 begin
-
   try
 
     FStatus := false;
@@ -547,74 +515,49 @@ begin
     TInject1.GetStatusContact('558196988474@c.us');
     TInject1.GetStatusContact('558198007759@c.us');
   finally
-
   end;
-
 end;
 
 
 
 procedure TfrmPrincipal.btGetMeClick(Sender: TObject);
 begin
-
   try
-
     if not TInject1.Auth then
        Exit;
 
     TInject1.GetMe();
   finally
-
   end;
-
 end;
-
-
 
 procedure TfrmPrincipal.Button19Click(Sender: TObject);
 begin
-
-   if not TInject1.Auth then
-
-     Exit;
+  if not TInject1.Auth then
+    exit;
 
   TInject1.GetGroupInviteLink(lbl_idGroup.Caption);//  '558192317066-1592044430@g.us'
-
 end;
-
-
 
 procedure TfrmPrincipal.btCleanChatClick(Sender: TObject);
 begin
-
   if not TInject1.Auth then
-
-     Exit;
-
+    exit;
 
   TInject1.CleanALLChat(ed_num.Text);
-
 end;
-
-
 
 procedure TfrmPrincipal.btGetStatusClick(Sender: TObject);
 begin
-
   try
-
     FStatus := true;
     if not TInject1.Auth then
-       Exit;
+      exit;
 
     TInject1.GetStatusContact(ed_num.Text);
   finally
-
   end;
-
 end;
-
-
 
 procedure TfrmPrincipal.btnConsoleClearClick(Sender: TObject);
 begin
@@ -629,44 +572,32 @@ begin
   if not TInject1.Auth then
        Exit;
 
-    TInject1.sendPool(edt_nomeGrupo.Text, 'TInject Community. Novo recurso de Enquete: Qual a melhor linguagem?', '["DELPHI", "JAVA", "C#", "PYTHON", "JAVASCRIPT", "PHP"]');
+  TInject1.sendPool(edt_nomeGrupo.Text, 'TInject Community. Novo recurso de Enquete: Qual a melhor linguagem?', '["DELPHI", "JAVA", "C#", "PYTHON", "JAVASCRIPT", "PHP"]');
 end;
 
 
 
 procedure TfrmPrincipal.btSetProfileNameClick(Sender: TObject);
 begin
-
   try
-
     if not TInject1.Auth then
        Exit;
 
     TInject1.SetProfileName(ed_profileData.Text);
   finally
-
   end;
-
 end;
-
-
 
 procedure TfrmPrincipal.btSetProfileStatusClick(Sender: TObject);
 begin
-
    try
-
     if not TInject1.Auth then
-       Exit;
+      exit;
 
     TInject1.SetStatus(ed_profileData.Text);
   finally
-
   end;
-
 end;
-
-
 
 procedure TfrmPrincipal.btnTestCheckNumberClick(Sender: TObject);
 begin
@@ -683,16 +614,53 @@ begin
 
 end;
 
+procedure TfrmPrincipal.DownloadAndRenameFile(imageURL: string);
+const
+  TempFileName = 'file.enc';
+  FinalFileName = 'file.jpg';
+var
+  IdHTTP: TIdHTTP;
+  SSL: TIdSSLIOHandlerSocketOpenSSL;
+  FileStream: TFileStream;
+begin
+  IdHTTP := TIdHTTP.Create(nil);
+  SSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+  try
+    IdHTTP.IOHandler := SSL;
+    IdHTTP.HandleRedirects := True;
 
+    FileStream := TFileStream.Create(TempFileName, fmCreate);
+    try
+      IdHTTP.Get(imageURL, FileStream);
+    finally
+      FileStream.Free;
+    end;
+
+    // Renomear o arquivo após o download
+    if FileExists(TempFileName) then
+    begin
+      if FileExists(FinalFileName) then
+        DeleteFile(FinalFileName); // Remove o arquivo se já existir
+      RenameFile(TempFileName, FinalFileName);
+
+      Image2.Picture.LoadFromFile(FinalFileName);
+    end;
+  finally
+    IdHTTP.Free;
+    SSL.Free;
+  end;
+end;
 
 procedure TfrmPrincipal.Button1Click(Sender: TObject);
 var
   JS: string;
 begin
-  if (not TInject1.Auth)  then
-    Exit;
+  DownloadAndRenameFile(ed_profilePicThumbURL.Text);
 
-  TInject1.getProfilePicThumb(FChatID);
+//  if (not TInject1.Auth)  then
+//    Exit;
+
+//  TInject1.getProfilePicThumb(FChatID);
 end;
 
 procedure TfrmPrincipal.Button2Click(Sender: TObject);
@@ -766,6 +734,16 @@ begin
      Exit;
 
   TInject1.groupDemoteParticipant(lbl_idGroup.Caption, ed_idParticipant.text);
+end;
+
+procedure TfrmPrincipal.chk_ativaLeituraClick(Sender: TObject);
+begin
+  try
+    if chk_ativaLeitura.Checked = true then
+      frmConsole.StartMonitor(3) else
+      frmConsole.StartMonitor(0);
+  except
+  end;
 end;
 
 procedure TfrmPrincipal.chk_3Click(Sender: TObject);
@@ -955,11 +933,6 @@ begin
 
 end;
 
-procedure TfrmPrincipal.TInject1GetBatteryLevel(Sender: TObject);
-begin
-  Lbl_Avisos.Caption  := 'O telefone '  + TInject(Sender).MyNumber + ' está com '+ TInject(Sender).BatteryLevel.ToString + '% de bateria';
-  btStatusBat.caption := 'Status da bateria (' + TInject(Sender).BatteryLevel.ToString + '%)';
-end;
 
 procedure TfrmPrincipal.TInject1GetChatList(const Chats: TChatList);
 var
@@ -1110,8 +1083,16 @@ end;
 procedure TfrmPrincipal.TInject1GetQrCode(Const Sender: TObject;  const QrCode: TResultQRCodeClass);
 begin
   if TInject1.FormQrCodeType = TFormQrCodeType(Ft_none) then
-     Image1.Picture := QrCode.AQrCodeImage else
-     Image1.Picture := nil; //Limpa foto
+  begin
+    {$IF CompilerVersion > 31}
+    Image1.Picture := QrCode.AQrCodeImage;
+    {$ELSE}
+    Image1.Picture.Bitmap := QrCode.AQrCodeImage;
+    {$ENDIF}
+  end else
+    begin
+       Image1.Picture := nil;
+    end;
 end;
 
 procedure TfrmPrincipal.TInject1GetStatus(Sender: TObject);//Const PStatus : TStatusType; Const PFormQrCode: TFormQrCodeType);
@@ -1226,13 +1207,13 @@ var
   contato, telefone: string;
   injectDecrypt: TInjectDecryptFile;
 begin
+   try
    for AChat in Chats.result do
     begin
       for AMessage in AChat.messages do
       begin
-        if not AChat.isGroup then //Não exibe mensages de grupos
+        if AChat.groupMetadata = nil then //Não exibe mensages de grupos
         begin
-
           if not AMessage.fromMe then  //Não exibe mensages enviadas por mim
           begin
             memo_unReadMessage.Clear;
@@ -1267,6 +1248,63 @@ begin
         end;
       end;
     end;
+   except on e:exception do
+    begin
+      showMessage(e.Message);
+    end;
+
+   end;
+end;
+
+procedure TfrmPrincipal.TInject1GetUnReadMessagesFromMe(const Chats: TChatList);
+var
+  AChat: TChatClass;
+  AMessage: TMessagesClass;
+  contato, telefone: string;
+  injectDecrypt: TInjectDecryptFile;
+begin
+//   for AChat in Chats.result do
+//    begin
+//      for AMessage in AChat.messages do
+//      begin
+//        if not AChat.isGroup then //Não exibe mensages de grupos
+//        begin
+//
+//          if not AMessage.fromMe then  //Não exibe mensages enviadas por mim
+//          begin
+//            memo_unReadMessage.Clear;
+//
+//            //Tratando o tipo do arquivo recebido e faz o download para pasta \BIN\temp
+//            case AnsiIndexStr(UpperCase(AMessage.&type), ['PTT', 'IMAGE', 'VIDEO', 'AUDIO', 'DOCUMENT']) of
+//              0: begin injectDecrypt.download(AMessage.deprecatedMms3Url, AMessage.mediaKey, 'mp3', AChat.id); end;
+//              1: begin injectDecrypt.download(AMessage.deprecatedMms3Url, AMessage.mediaKey, 'jpg', AChat.id); end;
+//              2: begin injectDecrypt.download(AMessage.deprecatedMms3Url, AMessage.mediaKey, 'mp4', AChat.id); end;
+//              3: begin injectDecrypt.download(AMessage.deprecatedMms3Url, AMessage.mediaKey, 'mp3', AChat.id); end;
+//              4: begin injectDecrypt.download(AMessage.deprecatedMms3Url, AMessage.mediaKey, 'pdf', AChat.id); end;
+//            end;
+//            sleepNoFreeze(100);
+//            memo_unReadMessage.Lines.Add(PChar( 'Nome Contato: ' + Trim(AMessage.Sender.pushName)));
+//              memo_unReadMessage.Lines.Add(PChar( 'Chat Id     : ' + AChat.id));
+//            FChatID := AChat.id;
+//
+//            memo_unReadMessage.Lines.Add(PChar('Tipo mensagem: '      + AMessage.&type));
+//            memo_unReadMessage.Lines.Add( StringReplace(AMessage.body, #$A, #13#10, [rfReplaceAll, rfIgnoreCase]));
+//
+//            telefone  :=  Copy(AChat.id, 3, Pos('@', AChat.id) - 3);
+//            contato   :=  AMessage.Sender.pushName;
+//
+//            ed_profilePicThumbURL.text := AChat.contact.profilePicThumb;
+//
+//
+//            TInject1.ReadMessages(AChat.id);
+//
+//            if chk_AutoResposta.Checked then
+//               VerificaPalavraChave(AMessage.body, '', telefone, contato);
+//          end;
+//        end;
+//      end;
+//    end;
+
 end;
 
 procedure TfrmPrincipal.TInject1IsConnected(Sender: TObject;
@@ -1322,11 +1360,19 @@ begin
 end;
 
 procedure TfrmPrincipal.listaGruposClick(Sender: TObject);
+var
+  InputText, AfterCommaText: string;
 begin
   if listaGrupos.ItemIndex <>  - 1 then
   begin
-    lbl_idGroup.Caption :=  Copy(listaGrupos.Items[listaGrupos.Selected.Index].SubItems[1], 0,
+
+    InputText := Copy(listaGrupos.Items[listaGrupos.Selected.Index].SubItems[1], 0,
       Pos('@', listaGrupos.Items[listaGrupos.Selected.Index].SubItems[1]))+'g.us';
+
+    AfterCommaText := GetTextAfterComma(InputText);
+
+    lbl_idGroup.Caption :=  Copy(AfterCommaText, 0,
+      Pos('@', listaGrupos.Items[listaGrupos.Selected.Index].SubItems[1]));
 
     if not TInject1.Auth then
       Exit;

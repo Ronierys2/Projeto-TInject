@@ -85,12 +85,6 @@ type
     procedure ProcessGroupBook(PCommand: string);
     procedure FormShow(Sender: TObject);
     procedure App_EventMinimize(Sender: TObject);
-    procedure Chromium1BeforeDownload(Sender: TObject;
-      const browser: ICefBrowser; const downloadItem: ICefDownloadItem;
-      const suggestedName: ustring; const callback: ICefBeforeDownloadCallback);
-    procedure Chromium1DownloadUpdated(Sender: TObject;
-      const browser: ICefBrowser; const downloadItem: ICefDownloadItem;
-      const callback: ICefDownloadItemCallback);
     procedure lbl_VersaoMouseEnter(Sender: TObject);
     procedure Chromium1BeforeContextMenu(Sender: TObject;
       const browser: ICefBrowser; const frame: ICefFrame;
@@ -155,7 +149,7 @@ type
     Procedure Form_Start;
     Procedure Form_Normal;
 
-    public
+  public
     { Public declarations }
     Function  ConfigureNetWork:Boolean;
     Procedure SetZoom(Pvalue: Integer);
@@ -204,7 +198,6 @@ type
     procedure CleanChat(vTelefone: string);
     procedure fGetMe;
     procedure NewCheckIsValidNumber(vNumber:String);
-
     procedure GetAllChats;
     procedure GetUnreadMessages;
     procedure GetBatteryLevel;
@@ -217,11 +210,13 @@ type
 
     //Para monitorar o qrcode via REST
     procedure ReadMessages(vID: string);
+    procedure MarkUnread(vID: string);
     procedure DeleteMessages(vID: string);
     procedure ReadMessagesAndDelete(vID: string);
 
     procedure StartMonitor(Seconds: Integer);
     procedure StopMonitor;
+//    procedure IsOnline;
   end;
 
 var
@@ -234,6 +229,18 @@ uses
   Data.DB, uTInject.FrmConfigNetWork, Winapi.ShellAPI;
 
 {$R *.dfm}
+
+//procedure TFrmConsole.IsOnline;
+//var
+//  Ljs: string;
+//begin
+//  if not FConectado then
+//    raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
+//
+//  LJS   := FrmConsole_JS_VAR_GetIsOnline;
+//
+//  ExecuteJS(LJS, true);
+//end;
 
 procedure TFrmConsole.App_EventMinimize(Sender: TObject);
 begin
@@ -689,6 +696,14 @@ begin
   ExecuteJS(FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#', Trim(vID)), False);
 end;
 
+procedure TFrmConsole.MarkUnread(vID: string);
+var
+  LJS: String;
+begin
+  LJS := FrmConsole_JS_VAR_MarkUnread;
+  ExecuteJS(FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#', Trim(vID)), False);
+end;
+
 Procedure TFrmConsole.DisConnect;
 begin
   try
@@ -956,7 +971,6 @@ begin
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
 
   vText := CaractersWeb(vText);
-  //LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendMsg;
   LJS   := FrmConsole_JS_VAR_SendMsg;
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',       Trim(vNum));
   FrmConsole_JS_AlterVar(LJS, '#MSG_CORPO#',       Trim(vText));
@@ -1029,29 +1043,10 @@ procedure TFrmConsole.Chromium1BeforeContextMenu(Sender: TObject;
   const browser: ICefBrowser; const frame: ICefFrame;
   const params: ICefContextMenuParams; const model: ICefMenuModel);
 begin
-  Model.Clear;
-end;
-
-procedure TFrmConsole.Chromium1BeforeDownload(Sender: TObject;
-  const browser: ICefBrowser; const downloadItem: ICefDownloadItem;
-  const suggestedName: ustring; const callback: ICefBeforeDownloadCallback);
-//Var
-//  LNameFile : String;
-begin
-{
-  if not(Chromium1.IsSameBrowser(browser)) or (downloadItem = nil) or not(downloadItem.IsValid) then
-     Exit;
-
-   LNameFile := FDownloadFila.SetNewStatus(downloadItem.OriginalUrl, TDw_Start);
-   if LNameFile = '' Then
-   Begin
-     Chromium1.StopLoad;
-     browser.StopLoad;
-     exit;
-   End;
-
-   callback.cont(LNameFile, False);
-}
+  try
+    Model.Clear;
+  except
+  end;
 end;
 
 procedure TFrmConsole.Chromium1BeforePopup(Sender: TObject;
@@ -1062,9 +1057,9 @@ procedure TFrmConsole.Chromium1BeforePopup(Sender: TObject;
   var settings: TCefBrowserSettings; var extra_info: ICefDictionaryValue;
   var noJavascriptAccess, Result: Boolean);
 begin
-// bloqueia todas as janelas pop-up e novas guias
-  ShellExecute(Handle, 'open', PChar(targetUrl), '', '', 1);
-  Result := (targetDisposition in [WOD_NEW_FOREGROUND_TAB, WOD_NEW_BACKGROUND_TAB, WOD_NEW_POPUP, WOD_NEW_WINDOW]);
+  //bloqueia todas as janelas pop-up e novas guias
+  //ShellExecute(Handle, 'open', PChar(targetUrl), '', '', 1);
+  //Result := (targetDisposition in [WOD_NEW_FOREGROUND_TAB, WOD_NEW_BACKGROUND_TAB, WOD_NEW_POPUP, WOD_NEW_WINDOW]);
 end;
 
 procedure TFrmConsole.Chromium1Close(Sender: TObject;
@@ -1109,7 +1104,7 @@ begin
 
    Case PResponse.TypeHeader of
 
-    Th_getAllContacts   : Begin
+    Th_getAllContacts     : Begin
                             ProcessPhoneBook(LResultStr);
                             Exit;
                           End;
@@ -1133,7 +1128,7 @@ begin
                             end;
                           end;
 
-    Th_getAllChats      : Begin
+    Th_getAllChats        : Begin
                             if Assigned(FChatList) then
                                FChatList.Free;
 
@@ -1142,7 +1137,7 @@ begin
                             FgettingChats := False;
                           End;
 
-    Th_getUnreadMessages: begin
+    Th_getUnreadMessages    : begin
                             LOutClass := TChatList.Create(LResultStr);
                             try
                               SendNotificationCenterDirect(PResponse.TypeHeader, LOutClass);
@@ -1162,7 +1157,7 @@ begin
                             FgettingChats := False;
                           end;
 
-    Th_GetAllGroupContacts: begin
+    Th_GetAllGroupContacts  : begin
                               LOutClass := TClassAllGroupContacts.Create(LResultStr);
                               try
                                 SendNotificationCenterDirect(PResponse.TypeHeader, LOutClass);
@@ -1172,7 +1167,7 @@ begin
                             end;
 
     Th_getQrCodeWEB,
-    Th_getQrCodeForm :    Begin
+    Th_getQrCodeForm      : begin
                             LOutClass := TQrCodeClass.Create(PResponse.JsonString, [], []);
                             try
                               ProcessQrCode(LOutClass);
@@ -1183,7 +1178,7 @@ begin
                           End;
 
 
-    Th_GetBatteryLevel  : begin
+    Th_GetBatteryLevel    : begin
                             If Assigned(FOnNotificationCenter) Then
                             Begin
                               LOutClass := TResponseBattery.Create(LResultStr);
@@ -1192,8 +1187,8 @@ begin
                             End;
                           end;
 
-    //Mike teste
-    Th_getIsDelivered:    begin
+
+    Th_getIsDelivered     : begin
                             If Assigned(FOnNotificationCenter) Then
                             Begin
                               LOutClass := TResponseIsDelivered.Create(LResultStr);
@@ -1203,7 +1198,7 @@ begin
                           end;
 
 
-    Th_getMyNumber      : Begin
+    Th_getMyNumber        : Begin
                             If Assigned(FOnNotificationCenter) Then
                             Begin
                               LOutClass := TResponseMyNumber.Create(LResultStr);
@@ -1213,7 +1208,7 @@ begin
                           End;
 
 
-    Th_GetCheckIsValidNumber  : begin
+    Th_GetCheckIsValidNumber    : begin
                                   If Assigned(FOnNotificationCenter) Then
                                   Begin
                                     LOutClass := TResponseCheckIsValidNumber.Create(LResultStr);
@@ -1222,7 +1217,7 @@ begin
                                   End;
                                 end;
 
-    Th_GetProfilePicThumb     : begin
+    Th_GetProfilePicThumb       : begin
                                   If Assigned(FOnNotificationCenter) Then
                                   Begin
                                     LOutClass := TResponseGetProfilePicThumb.Create(LResultStr);
@@ -1232,8 +1227,7 @@ begin
                                 end;
 
 
-
-    Th_GetCheckIsConnected : begin
+    Th_GetCheckIsConnected: begin
                             If Assigned(FOnNotificationCenter) Then
                             Begin
                               LOutClass := TResponseCheckIsConnected.Create(LResultStr);
@@ -1243,7 +1237,7 @@ begin
                           end;
 
 
-    Th_OnChangeConnect  : begin
+    Th_OnChangeConnect      : begin
                             LOutClass := TOnChangeConnect.Create(LResultStr);
                             LClose    := TOnChangeConnect(LOutClass).Result;
                             FreeAndNil(LOutClass);
@@ -1259,7 +1253,7 @@ begin
                           end;
 
 
-    Th_GetStatusMessage   : begin
+    Th_GetStatusMessage    : begin
                             LResultStr := copy(LResultStr, 11, length(LResultStr)); //REMOVENDO RESULT
                             LResultStr := copy(LResultStr, 0, length(LResultStr)-1); // REMOVENDO }
                             LOutClass := TResponseStatusMessage.Create(LResultStr);
@@ -1271,12 +1265,12 @@ begin
                            end;
 
 
-    Th_GetGroupInviteLink : begin
+    Th_GetGroupInviteLink   : begin
                             if Assigned(TInject(FOwner).OnGetInviteGroup) then
                               TInject(FOwner).OnGetInviteGroup(LResultStr);
                             end;
 
-    Th_GetMe              : begin
+    Th_GetMe                : begin
                               LResultStr := copy(LResultStr, 11, length(LResultStr)); //REMOVENDO RESULT
                               LResultStr := copy(LResultStr, 0, length(LResultStr)-1); // REMOVENDO }
                               LOutClass := TGetMeClass.Create(LResultStr);
@@ -1286,7 +1280,8 @@ begin
                                 FreeAndNil(LOutClass);
                               end;
                             end;
-    Th_NewCheckIsValidNumber : begin
+
+    Th_NewCheckIsValidNumber: begin
                               LResultStr := copy(LResultStr, 11, length(LResultStr)); //REMOVENDO RESULT
                               LResultStr := copy(LResultStr, 0, length(LResultStr)-1); // REMOVENDO }
                              LOutClass := TReturnCheckNumber.Create(LResultStr);
@@ -1297,14 +1292,13 @@ begin
                               end;
                             end;
 
-    Th_GetIncomingCall        : begin
+    Th_GetIncomingCall      : begin
                                 LOutClass := TReturnIncomingCall.Create(LResultStr);
                               try
                                 SendNotificationCenterDirect(PResponse.TypeHeader, LOutClass);
                               finally
                                 FreeAndNil(LOutClass);
                               end;
-
 
                             end;
    end;
@@ -1318,59 +1312,38 @@ procedure TFrmConsole.Chromium1ConsoleMessage(Sender: TObject;
 var
   AResponse  : TResponseConsoleMessage;
 begin
-
- //testa se e um JSON de forma RAPIDA!
-  if (Copy(message, 0, 2) <> '{"') then
-  Begin
-    LogAdd(message, 'CONSOLE IGNORADO');
-    Exit;
-  End else
-  Begin
-    if (message = FrmConsole_JS_Ignorar) or (message = FrmConsole_JS_RetornoVazio)  then
-       Exit;
-  End;
-
- LogAdd(message, 'CONSOLE');
-
- if message <> 'Uncaught (in promise) TypeError: output.update is not a function' then
-
-
- AResponse := TResponseConsoleMessage.Create( message );
   try
-    if AResponse = nil then
-       Exit;
+   //testa se e um JSON de forma RAPIDA!
+    if (Copy(message, 0, 2) <> '{"') then
+    Begin
+      LogAdd(message, 'CONSOLE IGNORADO');
+      Exit;
+    End else
+    Begin
+      if (message = FrmConsole_JS_Ignorar) or (message = FrmConsole_JS_RetornoVazio)  then
+         Exit;
+    End;
 
-    ExecuteCommandConsole(AResponse);
-//    if Assigned(FControlSend) then
-//       FControlSend.Release;
-  finally
-    FreeAndNil(AResponse);
+   LogAdd(message, 'CONSOLE');
+
+   if message <> 'Uncaught (in promise) TypeError: output.update is not a function' then
+
+
+   AResponse := TResponseConsoleMessage.Create( message );
+    try
+      if (AResponse = nil) or (pos('CANNOT READ PROPERTIES OF UNDEFINED (READING ''GETISONLINE2'')', AnsiUpperCase(Trim(message))) > 0) then
+         Exit;
+
+      ExecuteCommandConsole(AResponse);
+  //    if Assigned(FControlSend) then
+  //       FControlSend.Release;
+    finally
+      FreeAndNil(AResponse);
+    end;
+  except
   end;
 end;
 
-
-procedure TFrmConsole.Chromium1DownloadUpdated(Sender: TObject;
-  const browser: ICefBrowser; const downloadItem: ICefDownloadItem;
-  const callback: ICefDownloadItemCallback);
-begin
-
- {
-  if not(Chromium1.IsSameBrowser(browser)) then exit;
-  if not Assigned(FDownloadFila) then Exit;
-
-  if (not downloadItem.IsComplete) and (not downloadItem.IsCanceled) then
-     Exit;
-
-  try
-   if downloadItem.IsComplete then
-       FDownloadFila.SetNewStatus(downloadItem.Url, TDw_Completed) else
-       FDownloadFila.SetNewStatus(downloadItem.Url, TDw_CanceledErro);
-  Except
-     on E : Exception do
-        LogAdd(e.Message, 'ERROR DOWNLOAD ' + downloadItem.FullPath);
-  end;
-  }
-end;
 
 procedure TFrmConsole.Chromium1OpenUrlFromTab(Sender: TObject;
   const browser: ICefBrowser; const frame: ICefFrame; const targetUrl: ustring;
@@ -1378,23 +1351,26 @@ procedure TFrmConsole.Chromium1OpenUrlFromTab(Sender: TObject;
   out Result: Boolean);
 begin
  //Bloqueia popup do windows e novas abas
-  Result := (targetDisposition in [WOD_NEW_FOREGROUND_TAB, WOD_NEW_BACKGROUND_TAB, WOD_NEW_POPUP, WOD_NEW_WINDOW]);
+  //Result := (targetDisposition in [WOD_NEW_FOREGROUND_TAB, WOD_NEW_BACKGROUND_TAB, WOD_NEW_POPUP, WOD_NEW_WINDOW]);
 end;
 
 procedure TFrmConsole.Chromium1TitleChange(Sender: TObject;
   const browser: ICefBrowser; const title: ustring);
 begin
-  LPaginaId := LPaginaId + 1;
-  if (LPaginaId > 3) and (LPaginaId < 10) then
-  begin
-    Form_Normal;
-    If Assigned(OnNotificationCenter) then
-       SendNotificationCenterDirect(Th_Connected);
-  end;
-  if (LPaginaId <= 3) and (FFormType = Ft_Http) then
-    SetZoom(-2);
+  try
+    LPaginaId := LPaginaId + 1;
+    if (LPaginaId > 3) and (LPaginaId < 10) then
+    begin
+      Form_Normal;
+      If Assigned(OnNotificationCenter) then
+         SendNotificationCenterDirect(Th_Connected);
+    end;
+    if (LPaginaId <= 3) and (FFormType = Ft_Http) then
+      SetZoom(-2);
 
-  ExecuteJS(FrmConsole_JS_refreshOnlyQRCode, true);
+    ExecuteJS(FrmConsole_JS_refreshOnlyQRCode, true);
+  except
+  end;
 end;
 
 function TFrmConsole.ConfigureNetWork: Boolean;

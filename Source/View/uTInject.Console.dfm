@@ -11,6 +11,7 @@ object FrmConsole: TFrmConsole
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  OldCreateOrder = True
   Position = poOwnerFormCenter
   ShowHint = True
   OnClose = FormClose
@@ -18,6 +19,7 @@ object FrmConsole: TFrmConsole
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  PixelsPerInch = 96
   TextHeight = 13
   object Pnl_Top: TPanel
     AlignWithMargins = True
@@ -466,8 +468,6 @@ object FrmConsole: TFrmConsole
     OnBeforeContextMenu = Chromium1BeforeContextMenu
     OnTitleChange = Chromium1TitleChange
     OnConsoleMessage = Chromium1ConsoleMessage
-    OnBeforeDownload = Chromium1BeforeDownload
-    OnDownloadUpdated = Chromium1DownloadUpdated
     OnBeforePopup = Chromium1BeforePopup
     OnAfterCreated = Chromium1AfterCreated
     OnBeforeClose = Chromium1BeforeClose

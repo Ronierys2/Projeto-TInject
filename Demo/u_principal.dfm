@@ -2,7 +2,7 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'Demo TInject'
-  ClientHeight = 565
+  ClientHeight = 607
   ClientWidth = 1102
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,13 +10,15 @@ object frmPrincipal: TfrmPrincipal
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  OldCreateOrder = True
   Position = poOwnerFormCenter
   OnClose = FormClose
   OnCreate = FormCreate
+  PixelsPerInch = 96
   TextHeight = 13
   object Lbl_Avisos: TLabel
     Left = 0
-    Top = 533
+    Top = 575
     Width = 1102
     Height = 13
     Align = alBottom
@@ -28,12 +30,10 @@ object frmPrincipal: TfrmPrincipal
     Left = 3
     Top = 3
     Width = 1096
-    Height = 527
-    ActivePage = TabSheet1
+    Height = 569
+    ActivePage = TabSheet3
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 1092
-    ExplicitHeight = 526
     object TabSheet1: TTabSheet
       Caption = 'Autentica'#231#227'o / Authentication'
       object Pnl_Config: TPanel
@@ -41,7 +41,7 @@ object frmPrincipal: TfrmPrincipal
         Left = 375
         Top = 3
         Width = 710
-        Height = 493
+        Height = 535
         Align = alClient
         BorderStyle = bsSingle
         Caption = 'Pnl_Config'
@@ -49,11 +49,9 @@ object frmPrincipal: TfrmPrincipal
         ParentCtl3D = False
         ShowCaption = False
         TabOrder = 0
-        ExplicitWidth = 706
-        ExplicitHeight = 492
         DesignSize = (
           708
-          491)
+          533)
         object Image1: TImage
           Left = 19
           Top = 232
@@ -446,7 +444,6 @@ object frmPrincipal: TfrmPrincipal
           Margins.Bottom = 8
           Align = alTop
           TabOrder = 0
-          ExplicitWidth = 686
           DesignSize = (
             690
             113)
@@ -467,7 +464,6 @@ object frmPrincipal: TfrmPrincipal
             EditLabel.Caption = 'Tempo Monitor'
             NumbersOnly = True
             TabOrder = 0
-            Text = ''
             OnExit = Edt_DDIPDRExit
           end
           object LabeledEdit1: TLabeledEdit
@@ -480,7 +476,6 @@ object frmPrincipal: TfrmPrincipal
             EditLabel.Caption = 'Tempo Seg.'
             NumbersOnly = True
             TabOrder = 1
-            Text = ''
             OnExit = Edt_DDIPDRExit
           end
           object chk_AutoResposta: TCheckBox
@@ -504,7 +499,18 @@ object frmPrincipal: TfrmPrincipal
             Anchors = [akLeft, akTop, akRight]
             TabOrder = 3
             OnExit = Edt_DDIPDRExit
-            ExplicitWidth = 480
+          end
+          object chk_ativaLeitura: TCheckBox
+            Left = 10
+            Top = 85
+            Width = 157
+            Height = 17
+            Caption = 'Ativar leitura de mensagens'
+            Checked = True
+            State = cbChecked
+            TabOrder = 4
+            OnClick = chk_ativaLeituraClick
+            OnExit = Edt_DDIPDRExit
           end
         end
         object Pnl_FONE: TPanel
@@ -524,7 +530,6 @@ object frmPrincipal: TfrmPrincipal
             EditLabel.Caption = 'Digitos DDD'
             NumbersOnly = True
             TabOrder = 0
-            Text = ''
             OnExit = Edt_DDIPDRExit
           end
           object Edt_LengDDI: TLabeledEdit
@@ -537,7 +542,6 @@ object frmPrincipal: TfrmPrincipal
             EditLabel.Caption = 'Digitos DDI'
             NumbersOnly = True
             TabOrder = 1
-            Text = ''
             OnExit = Edt_DDIPDRExit
           end
           object Edt_LengFone: TLabeledEdit
@@ -550,7 +554,6 @@ object frmPrincipal: TfrmPrincipal
             EditLabel.Caption = 'Digitos Fone'
             NumbersOnly = True
             TabOrder = 2
-            Text = ''
             OnExit = Edt_DDIPDRExit
           end
           object Edt_DDIPDR: TLabeledEdit
@@ -563,7 +566,6 @@ object frmPrincipal: TfrmPrincipal
             EditLabel.Caption = 'DDI Padr'#227'o'
             NumbersOnly = True
             TabOrder = 3
-            Text = ''
             OnExit = Edt_DDIPDRExit
           end
           object CheckBox4: TCheckBox
@@ -585,7 +587,7 @@ object frmPrincipal: TfrmPrincipal
         Left = 3
         Top = 3
         Width = 366
-        Height = 493
+        Height = 535
         Align = alLeft
         BorderStyle = bsSingle
         Caption = 'Panel2'
@@ -593,10 +595,9 @@ object frmPrincipal: TfrmPrincipal
         ParentCtl3D = False
         ShowCaption = False
         TabOrder = 1
-        ExplicitHeight = 492
         DesignSize = (
           364
-          491)
+          533)
         object whatsOn: TImage
           Left = 150
           Top = 149
@@ -3210,7 +3211,7 @@ object frmPrincipal: TfrmPrincipal
         end
         object Label3: TLabel
           Left = 1
-          Top = 381
+          Top = 423
           Width = 362
           Height = 80
           Align = alBottom
@@ -3821,7 +3822,7 @@ object frmPrincipal: TfrmPrincipal
         end
         object SpeedButton3: TSpeedButton
           Left = 1
-          Top = 461
+          Top = 503
           Width = 362
           Height = 29
           Align = alBottom
@@ -3915,12 +3916,12 @@ object frmPrincipal: TfrmPrincipal
         Left = 0
         Top = 0
         Width = 249
-        Height = 499
+        Height = 541
         Align = alLeft
         TabOrder = 0
         DesignSize = (
           249
-          499)
+          541)
         object Label1: TLabel
           Left = 5
           Top = 7
@@ -3946,14 +3947,14 @@ object frmPrincipal: TfrmPrincipal
           Left = 5
           Top = 68
           Width = 238
-          Height = 69
+          Height = 111
           Anchors = [akLeft, akTop, akBottom]
           TabOrder = 1
         end
         object btSendTextAndFile: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 314
+          Top = 356
           Width = 239
           Height = 25
           Align = alBottom
@@ -3966,7 +3967,7 @@ object frmPrincipal: TfrmPrincipal
         object btSendText: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 283
+          Top = 325
           Width = 239
           Height = 25
           Align = alBottom
@@ -4001,81 +4002,69 @@ object frmPrincipal: TfrmPrincipal
           TabOrder = 4
           OnClick = Edt_DDIPDRExit
         end
-        object btStatusBat: TButton
-          AlignWithMargins = True
-          Left = 5
-          Top = 469
-          Width = 239
-          Height = 25
-          Align = alBottom
-          Caption = 'Status da Bateria / Battery status'
-          ImageIndex = 0
-          Images = ImageList1
-          TabOrder = 5
-        end
         object btSendContact: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 345
+          Top = 387
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Enviar contato / Send contact'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 6
+          TabOrder = 5
           OnClick = btSendContactClick
         end
         object btCheckNumber: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 438
+          Top = 480
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Verificar n'#250'mero / Check number'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 7
+          TabOrder = 6
           OnClick = btCheckNumberClick
         end
         object btIsConnected: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 190
+          Top = 232
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Checar conex'#227'o / Check connection'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 8
+          TabOrder = 7
           OnClick = btIsConnectedClick
         end
         object btSendLocation: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 407
+          Top = 449
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Enviar localiza'#231#227'o / Send location'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 9
+          TabOrder = 8
           OnClick = btSendLocationClick
         end
         object btSendLinkWithPreview: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 376
+          Top = 418
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Enviar link pr'#233'via / Send link preview'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 10
+          TabOrder = 9
           OnClick = btSendLinkWithPreviewClick
         end
         object ed_videoLink: TEdit
@@ -4083,40 +4072,53 @@ object frmPrincipal: TfrmPrincipal
           Top = 151
           Width = 238
           Height = 21
-          TabOrder = 11
+          TabOrder = 10
         end
         object btSendTextButton: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 252
+          Top = 294
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Enviar Texto com bot'#245'es / Buttons text'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 12
+          TabOrder = 11
           OnClick = btSendTextButtonClick
         end
         object btSendButtonList: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 221
+          Top = 263
           Width = 239
           Height = 25
           Align = alBottom
           Caption = 'Enviar bot'#227'o com lista / Send button with list'
           ImageIndex = 0
           Images = ImageList1
-          TabOrder = 13
+          TabOrder = 12
           OnClick = btSendButtonListClick
+        end
+        object btMarkUnRead: TButton
+          AlignWithMargins = True
+          Left = 5
+          Top = 511
+          Width = 239
+          Height = 25
+          Align = alBottom
+          Caption = 'Marcar n'#227'o lida / Mark unReadMessage'
+          ImageIndex = 0
+          Images = ImageList1
+          TabOrder = 13
+          OnClick = btMarkUnReadClick
         end
       end
       object Panel1: TPanel
         Left = 249
         Top = 0
         Width = 839
-        Height = 499
+        Height = 541
         Align = alClient
         BevelOuter = bvNone
         Caption = 'Panel1'
@@ -4125,7 +4127,7 @@ object frmPrincipal: TfrmPrincipal
         object Splitter1: TSplitter
           Left = 481
           Top = 0
-          Height = 499
+          Height = 541
           ExplicitLeft = 240
           ExplicitTop = 72
           ExplicitHeight = 100
@@ -4134,7 +4136,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 484
           Top = 0
           Width = 241
-          Height = 499
+          Height = 541
           Align = alLeft
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -4167,7 +4169,7 @@ object frmPrincipal: TfrmPrincipal
             Left = 5
             Top = 49
             Width = 231
-            Height = 445
+            Height = 487
             Align = alClient
             Columns = <>
             LargeImages = ImageList1
@@ -4185,7 +4187,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 252
           Top = 0
           Width = 229
-          Height = 499
+          Height = 541
           Align = alLeft
           TabOrder = 1
           object Panel4: TPanel
@@ -4221,7 +4223,7 @@ object frmPrincipal: TfrmPrincipal
             Left = 5
             Top = 49
             Width = 219
-            Height = 445
+            Height = 487
             Align = alClient
             Columns = <>
             LargeImages = ImageList1
@@ -4239,7 +4241,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 0
           Top = 0
           Width = 252
-          Height = 499
+          Height = 541
           Align = alLeft
           TabOrder = 2
           object lblNumeroConectado: TLabel
@@ -4299,7 +4301,7 @@ object frmPrincipal: TfrmPrincipal
           object btCleanChat: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 407
+            Top = 449
             Width = 242
             Height = 25
             Align = alBottom
@@ -4312,7 +4314,7 @@ object frmPrincipal: TfrmPrincipal
           object btGetMe: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 469
+            Top = 511
             Width = 242
             Height = 25
             Align = alBottom
@@ -4325,7 +4327,7 @@ object frmPrincipal: TfrmPrincipal
           object btnTestCheckNumber: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 438
+            Top = 480
             Width = 242
             Height = 25
             Align = alBottom
@@ -4338,7 +4340,7 @@ object frmPrincipal: TfrmPrincipal
           object btGetSeveralStatus: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 376
+            Top = 418
             Width = 242
             Height = 25
             Align = alBottom
@@ -4351,7 +4353,7 @@ object frmPrincipal: TfrmPrincipal
           object btGetStatus: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 345
+            Top = 387
             Width = 242
             Height = 25
             Align = alBottom
@@ -4405,7 +4407,7 @@ object frmPrincipal: TfrmPrincipal
           object btnConsoleClear: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 314
+            Top = 356
             Width = 242
             Height = 25
             Align = alBottom
@@ -4414,8 +4416,6 @@ object frmPrincipal: TfrmPrincipal
             Images = ImageList1
             TabOrder = 6
             OnClick = btnConsoleClearClick
-            ExplicitLeft = 10
-            ExplicitTop = 322
           end
         end
       end
@@ -4425,7 +4425,7 @@ object frmPrincipal: TfrmPrincipal
       ImageIndex = 3
       DesignSize = (
         1088
-        499)
+        541)
       object Image2: TImage
         Left = 744
         Top = 32
@@ -4492,7 +4492,7 @@ object frmPrincipal: TfrmPrincipal
         Left = 3
         Top = 3
         Width = 1082
-        Height = 493
+        Height = 535
         Align = alClient
         BorderStyle = bsSingle
         Caption = 'Pnl_Config'
@@ -4502,7 +4502,7 @@ object frmPrincipal: TfrmPrincipal
         TabOrder = 0
         DesignSize = (
           1080
-          491)
+          533)
         object lbl_idGroup: TLabel
           Left = 11
           Top = 109
@@ -5241,7 +5241,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 11
           Top = 125
           Width = 232
-          Height = 363
+          Height = 405
           Anchors = [akLeft, akTop, akBottom]
           Columns = <>
           LargeImages = ImageList1
@@ -5258,7 +5258,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 249
           Top = 224
           Width = 199
-          Height = 264
+          Height = 306
           Anchors = [akLeft, akTop, akBottom]
           Columns = <>
           LargeImages = ImageList1
@@ -5437,7 +5437,7 @@ object frmPrincipal: TfrmPrincipal
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 546
+    Top = 588
     Width = 1102
     Height = 19
     Panels = <
@@ -5449,8 +5449,6 @@ object frmPrincipal: TfrmPrincipal
         Text = 'Offline'
         Width = 50
       end>
-    ExplicitTop = 545
-    ExplicitWidth = 1098
   end
   object OpenDialog1: TOpenDialog
     Filter = 'Imagens|*jpg;*.jpg;*.bmp;*.png;*.pdf;*.mp4;*.mp3;*.rar'
@@ -5525,11 +5523,11 @@ object frmPrincipal: TfrmPrincipal
     Top = 94
   end
   object TInject1: TInject
+    InjectJS.AutoUpdate = False
     InjectJS.AutoUpdateTimeOut = 20
     Config.AutoDelay = 30
     Config.ReceiveAttachmentAuto = False
     Config.Zoom = 0
-    Config.SecondsMonitor = 1
     Config.ShowRandom = False
     AjustNumber.LengthPhone = 8
     AjustNumber.DDIDefault = 55
@@ -5540,9 +5538,9 @@ object frmPrincipal: TfrmPrincipal
     OnGetQrCode = TInject1GetQrCode
     OnGetChatList = TInject1GetChatList
     OnGetUnReadMessages = TInject1GetUnReadMessages
+    OnGetUnReadMessagesFromMe = TInject1GetUnReadMessagesFromMe
     OnGetAllGroupContacts = TInject1GetAllGroupContacts
     OnGetStatus = TInject1GetStatus
-    OnGetBatteryLevel = TInject1GetBatteryLevel
     OnIsConnected = TInject1IsConnected
     OnGetCheckIsValidNumber = TInject1GetCheckIsValidNumber
     OnGetProfilePicThumb = TInject1GetProfilePicThumb
@@ -5555,7 +5553,7 @@ object frmPrincipal: TfrmPrincipal
     OnGetMe = TInject1GetMe
     OnNewGetNumber = TInject1NewGetNumber
     OnGetIncomingCall = TInject1GetIncomingCall
-    Left = 192
-    Top = 320
+    Left = 272
+    Top = 304
   end
 end

@@ -37,7 +37,7 @@ uses Generics.Collections, Rest.Json, uTInject.FrmQRCode, Vcl.Graphics, System.I
     Vcl.IdAntiFreeze,
   {$ENDIF}
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, Vcl.Imaging.jpeg,
-  IdSSLOpenSSL, UrlMon;
+  IdSSLOpenSSL, UrlMon, system.JSON;
 
 type
 
@@ -95,6 +95,7 @@ type
     Property JsonOption  : TJsonOptions   Read FJsonOption;
     Property JsonString  : String         Read FJsonString;
     function ToJsonString: string;
+    procedure RemoveObjectsFromJson(var json: TJSONObject);
   end;
 
   TClassPadraoString = class(TClassPadrao)
@@ -744,7 +745,14 @@ end;
 TResultQRCodeClass = class(TClassPadrao)
 private
   FAQrCode: String;
+
+  {$IF CompilerVersion > 31}
   FAQrCodeImage: TPicture;
+  {$ELSE}
+  FAQrCodeImage: TBitmap;
+  {$ENDIF}
+
+
   FAQrCodeImageStream: TMemoryStream;
   FAQrCodeSucess: Boolean;
   FAImageDif    : Boolean;
@@ -756,7 +764,13 @@ public
 
   property  AQrCode: String                    read FAQrCode                      write FAQrCode;
   property  AQrCodeImageStream: TMemoryStream  Read FAQrCodeImageStream;
+
+  {$IF CompilerVersion > 31}
   property  AQrCodeImage: TPicture             read FAQrCodeImage;
+  {$ELSE}
+  property  AQrCodeImage: TBitmap              read FAQrCodeImage;
+  {$ENDIF}
+
   property  AQrCodeSucess: Boolean             read FAQrCodeSucess;
   property  AImageDif:  Boolean                read FAImageDif;
   Function  AQrCodeQuestion: Boolean;
@@ -831,7 +845,8 @@ implementation
 
 
 uses
-  System.JSON, System.SysUtils, Vcl.Dialogs, System.NetEncoding,
+  //System.JSON, System.SysUtils, Vcl.Dialogs, System.NetEncoding,
+  System.SysUtils, Vcl.Dialogs, System.NetEncoding,
   Vcl.Imaging.pngimage, uTInject.ConfigCEF, Vcl.Forms, Winapi.Windows,
   uTInject.Diversos;
 
@@ -881,7 +896,15 @@ end;
 
 constructor TResultQRCodeClass.Create(pAJsonString: string);
 begin
-  FAQrCodeImage       := TPicture.Create;
+
+  {$IF CompilerVersion > 31}
+  FAQrCodeImage := TPicture.Create;
+  {$ELSE}
+  FAQrCodeImage := Vcl.Graphics.TBitmap.Create;
+  {$ENDIF}
+
+
+
   FAQrCodeImageStream := TMemoryStream.Create;
   FAQrCodeSucess      := False;
   FAImageDif          := False;
@@ -890,10 +913,8 @@ begin
 end;
 
 function TResultQRCodeClass.CreateImage: Boolean;
-{$IF CompilerVersion >= 31}
 var
-    PNG: TpngImage;
-{$ENDIF}
+  PNG: TpngImage;
 begin
   Result := False;
   try
@@ -901,19 +922,28 @@ begin
        Exit;
 
     FreeAndNil(FAQrCodeImage);
+
+
+    {$IF CompilerVersion > 31}
     FAQrCodeImage  := TPicture.Create;
+    {$ELSE}
+    FAQrCodeImage  := Vcl.Graphics.TBitmap.Create;
+    {$ENDIF}
+
+
     FAQrCodeImageStream.Position := 0;
 
-   {$IF CompilerVersion >= 31}
+   {$IF CompilerVersion > 31}
+
       FAQrCodeImage.LoadFromStream(FAQrCodeImageStream);
       result := True;
    {$ENDIF}
 
-   {$IF CompilerVersion < 31}
+   {$IF CompilerVersion <= 31}
       PNG := TPngImage.Create;
       try
         Png.LoadFromStream(FAQrCodeImageStream);
-        FAQrCodeImage.Graphic := PNG;
+        FAQrCodeImage.Assign(PNG)
         result := True;
       finally
         PNG.Free;
@@ -1125,6 +1155,33 @@ end;
 constructor TClassPadrao.Create(pAJsonString: string; PJsonOption: TJsonOptions);
 var
   lAJsonObj: TJSONValue;
+
+  //Autor: Daniel Valmir Serafim -->
+  function IsResultArray(const jsonString: string): Boolean;
+  var
+    jsonObject: TJSONObject;
+    resultValue: TJSONValue;
+    resultArray: TJSONArray;
+  begin
+    Result := False;
+
+    // Converte a string JSON para um objeto JSON
+    jsonObject := TJSONObject.ParseJSONValue(jsonString) as TJSONObject;
+
+    try
+      // Verifica se o objeto JSON possui a chave "result"
+      if Assigned(jsonObject) and jsonObject.TryGetValue<TJSONValue>('result', resultValue) then
+      begin
+        // Verifica se o valor associado à chave "result" é um array
+        if Assigned(resultValue) and (resultValue is TJSONArray) then
+          Result := True;
+      end;
+    finally
+      jsonObject.Free;
+    end;
+  end;
+  //Autor: Daniel Valmir Serafim <--
+
 begin
   lAJsonObj      := TJSONObject.ParseJSONValue(pAJsonString);
   FInjectWorking := False;
@@ -1133,6 +1190,11 @@ begin
    try
     if NOT Assigned(lAJsonObj) then
        Exit;
+
+    {$IFDEF VER360}
+    if IsResultArray(pAJsonString) then
+      RemoveObjectsFromJson(TJSONObject(lAJsonObj));
+    {$ENDIF}
 
     TJson.JsonToObject(Self, TJSONObject(lAJsonObj) ,PJsonOption);
 
@@ -1152,6 +1214,48 @@ begin
   end;
 end;
 
+//Autor: Daniel Valmir Serafim -->
+procedure TClassPadrao.RemoveObjectsFromJson(var json: TJSONObject);
+var
+  resultArray: TJsonArray;
+  chatObject, messageObject: TJSONObject;
+  messageArray: TJSONArray;
+  i,j : integer;
+begin
+  try
+    // Verifica se o JSON contém a chave "result" e se é um array
+    if json.TryGetValue<TJsonArray>('result', resultArray) then
+    begin
+      // Itera sobre os elementos do array
+      for i := 0 to resultArray.Count - 1 do
+      begin
+        // Obtém o objeto de chat
+        chatObject := resultArray.Items[i] as TJSONObject;
+        // Remove os objetos específicos do chat
+        chatObject.RemovePair('tcToken');
+  //      chatObject.RemovePair('chat');
+        // Verifica se o chat contém mensagens
+        if chatObject.TryGetValue<TJsonArray>('messages', messageArray) then
+        begin
+          // Itera sobre as mensagens do chat
+          for j := 0 to messageArray.Count - 1 do
+          begin
+            // Obtém o objeto de mensagem
+            messageObject := messageArray.Items[j] as TJSONObject;
+            // Remove o objeto de mediaData da mensagem
+            messageObject.RemovePair('mediaData');
+            messageObject.RemovePair('chat');
+          end;
+        end;
+      end;
+    end;
+  Except
+     on E : Exception do
+       LogAdd(e.Message, 'ERROR ' + SELF.ClassName);
+   end;
+end;
+//Autor: Daniel Valmir Serafim <--
+
 destructor TClassPadrao.Destroy;
 begin
   inherited;
@@ -1168,22 +1272,33 @@ var
   I: Integer;
 begin
    try
-    for i:= Length(PArray)-1 downto 0 do
-        {$IFDEF VER300}
-          freeAndNil(PArray[i]);
-        {$ENDIF}
+     try
+      for i:= Length(PArray)-1 downto 0 do
+          {$IFDEF VER300}
+            freeAndNil(PArray[i]);
+          {$ENDIF}
 
-        {$IFDEF VER330}
-          freeAndNil(PArray[i]);
-        {$ENDIF}
+          {$IFDEF VER330}
+            freeAndNil(PArray[i]);
+          {$ENDIF}
 
-        {$IFDEF VER340}
-		// var a: TArray<TClassPadrao>;  
-		// a := TArray<TClassPadrao>(PArray);
-          freeAndNil(TArray<TClassPadrao>(PArray)[i]);
-        {$ENDIF}
-   finally
-     SetLength(PArray, 0);
+          {$IFDEF VER340}
+            freeAndNil(TArray<TClassPadrao>(PArray)[i]);
+          {$ENDIF}
+
+          {$IFDEF VER350}
+            freeAndNil(TArray<TClassPadrao>(PArray)[i]);
+          {$ENDIF}
+
+          {$IFDEF VER360}
+            freeAndNil(TArray<TClassPadrao>(PArray)[i]);
+          {$ENDIF}
+     finally
+       SetLength(PArray, 0);
+     end;
+   except
+     on E : Exception do
+         LogAdd(e.Message, 'ERROR ' + SELF.ClassName);
    end;
 end;
 
@@ -1224,6 +1339,8 @@ end;
 
 constructor TUrlIndy.Create;
 begin
+  try
+
   {$IFDEF DELPHI25_UP}
     inherited;
   {$ELSE}
@@ -1258,18 +1375,28 @@ begin
     SSLOptions.Mode := sslmUnassigned;
   end;
 
+  except
+    on E : Exception do
+       LogAdd(e.Message, 'ERROR ' + SELF.ClassName);
+  end;
+
 end;
 
 destructor TUrlIndy.Destroy;
 begin
-  FTImeOutIndy.Enabled       := False;
-  FreeandNil(FReturnUrl);
-  FreeandNil(FTImeOutIndy);
-  FreeandNil(SSIOHandler);
-  {$IFDEF DELPHI25_UP}
-     FreeandNil(FIdAntiFreeze);
-  {$ENDIF}
-  inherited;
+  try
+    FTImeOutIndy.Enabled       := False;
+    FreeandNil(FReturnUrl);
+    FreeandNil(FTImeOutIndy);
+    FreeandNil(SSIOHandler);
+    {$IFDEF DELPHI25_UP}
+       FreeandNil(FIdAntiFreeze);
+    {$ENDIF}
+    inherited;
+  except
+    on E : Exception do
+       LogAdd(e.Message, 'ERROR ' + SELF.ClassName);
+  end;
 end;
 
 function TUrlIndy.DownLoadInternetFile(Source, Dest: String): Boolean;
@@ -1386,6 +1513,11 @@ begin
   FNumbers.Text := StringReplace(FNumbers.Text, '"' , '',    [rfReplaceAll]);
   FNumbers.Text := StringReplace(FNumbers.Text, '{result:[' , '',    [rfReplaceAll]);
   FNumbers.Text := StringReplace(FNumbers.Text, ']}' , '',    [rfReplaceAll]);
+  FNumbers.Text := StringReplace(FNumbers.Text, 'id' , '',    [rfReplaceAll]);
+  FNumbers.Text := StringReplace(FNumbers.Text, 'subject' , '',    [rfReplaceAll]);
+  FNumbers.Text := StringReplace(FNumbers.Text, ':' , '',    [rfReplaceAll]);
+  FNumbers.Text := StringReplace(FNumbers.Text, '}' , '',    [rfReplaceAll]);
+  FNumbers.Text := StringReplace(FNumbers.Text, '{' , '',    [rfReplaceAll]);
 end;
 
 destructor TRetornoAllGroups.Destroy;
